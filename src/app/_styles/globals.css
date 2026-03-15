@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-primary-900;
+  }
+  body {
+    @apply bg-primary-950 text-primary-100 min-h-screen flex flex-col relative;
+    line-height: 1.5;
+  }
+}
+
+/* Custom styles for utility-like behavior if needed */
+.object-cover {
+  object-fit: cover;
+}
+
+.object-top {
+  object-position: top;
+}
