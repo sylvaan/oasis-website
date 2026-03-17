@@ -1,37 +1,12 @@
+import { getCabinsFromSupabase } from "../_lib/cabins-service";
 import Image from "next/image";
 
 export const metadata = {
   title: "Cabins | The Wild Oasis",
 };
 
-export default function Page() {
-  // MOCK DATA for now
-  const cabins = [
-    {
-      id: "001",
-      name: "Cabin 001",
-      maxCapacity: 2,
-      regularPrice: 250,
-      discount: 0,
-      image: "/cabin-1.png",
-    },
-    {
-      id: "002",
-      name: "Cabin 002",
-      maxCapacity: 4,
-      regularPrice: 350,
-      discount: 50,
-      image: "/cabin-2.png",
-    },
-    {
-      id: "003",
-      name: "Cabin 003",
-      maxCapacity: 6,
-      regularPrice: 550,
-      discount: 0,
-      image: "/cabin-3.png",
-    },
-  ];
+export default async function Page() {
+  const cabins = await getCabinsFromSupabase();
 
   return (
     <div>
@@ -48,50 +23,56 @@ export default function Page() {
       </p>
 
       {cabins.length > 0 && (
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 xl:gap-14">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-14">
           {cabins.map((cabin) => (
             <div
               key={cabin.id}
-              className="flex border border-primary-800 rounded-sm overflow-hidden"
+              className="flex flex-col border border-primary-800 rounded-sm overflow-hidden hover:scale-[1.01] transition-all duration-300"
             >
-              <div className="relative flex-1">
+              <div className="relative aspect-[3/2]">
                 <Image
                   src={cabin.image}
                   fill
                   alt={cabin.name}
-                  className="object-cover border-r border-primary-800"
+                  className="object-cover"
                 />
               </div>
 
-              <div className="flex-grow px-10 py-5 bg-primary-950">
-                <h3 className="text-accent-500 font-semibold text-2xl mb-3">
-                  {cabin.name}
-                </h3>
+              <div className="flex-grow px-8 py-6 bg-primary-950 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-accent-500 font-semibold text-2xl mb-2">
+                    Cabin {cabin.name}
+                  </h3>
 
-                <div className="flex gap-3 items-center mb-2">
-                  <span className="text-primary-300">For up to {cabin.maxCapacity} guests</span>
+                  <div className="flex gap-3 items-center mb-4">
+                    <span className="text-primary-300 text-lg">
+                      For up to {cabin.max_capacity} guests
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 items-baseline mb-6">
+                    {cabin.discount > 0 ? (
+                      <>
+                        <span className="text-3xl font-[400] text-primary-50">
+                          ${cabin.regular_price - cabin.discount}
+                        </span>
+                        <span className="line-through font-semibold text-primary-600">
+                          ${cabin.regular_price}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-3xl font-[400] text-primary-50">
+                        ${cabin.regular_price}
+                      </span>
+                    )}
+                    <span className="text-primary-400">/ night</span>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 justify-end items-baseline">
-                  {cabin.discount > 0 ? (
-                    <>
-                      <span className="text-3xl font-[350]">
-                        ${cabin.regularPrice - cabin.discount}
-                      </span>
-                      <span className="line-through font-semibold text-primary-600">
-                        ${cabin.regularPrice}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-3xl font-[350]">${cabin.regularPrice}</span>
-                  )}
-                  <span className="text-primary-200">/ night</span>
-                </div>
-
-                <div className="border-t border-t-primary-800 pt-5 text-right">
+                <div className="border-t border-t-primary-900 pt-5 text-right">
                   <a
                     href={`/cabins/${cabin.id}`}
-                    className="border-primary-800 py-3 px-6 hover:bg-accent-600 transition-all hover:text-primary-900"
+                    className="inline-block border border-accent-800 py-3 px-8 text-accent-400 hover:bg-accent-600 transition-all hover:text-primary-900 font-medium"
                   >
                     Details & reservation &rarr;
                   </a>
