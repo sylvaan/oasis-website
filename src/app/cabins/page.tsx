@@ -1,13 +1,15 @@
-import { getCabinsFromSupabase } from "../_lib/cabins-service";
-import Image from "next/image";
+import { Suspense } from "react";
+import CabinList from "@/app/_components/CabinList";
+import Spinner from "@/app/_components/Spinner";
 
 export const metadata = {
   title: "Cabins | The Wild Oasis",
 };
 
-export default async function Page() {
-  const cabins = await getCabinsFromSupabase();
+export const revalidate = 3600;
+// export const revalidate = 15; // For testing ISR
 
+export default function Page() {
   return (
     <div>
       <h1 className="text-4xl mb-5 text-accent-400 font-medium">
@@ -22,66 +24,9 @@ export default async function Page() {
         vacation. Welcome to paradise.
       </p>
 
-      {cabins.length > 0 && (
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-14">
-          {cabins.map((cabin) => (
-            <div
-              key={cabin.id}
-              className="flex flex-col border border-primary-800 rounded-sm overflow-hidden hover:scale-[1.01] transition-all duration-300"
-            >
-              <div className="relative aspect-[3/2]">
-                <Image
-                  src={cabin.image}
-                  fill
-                  alt={cabin.name}
-                  className="object-cover"
-                />
-              </div>
-
-              <div className="flex-grow px-8 py-6 bg-primary-950 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-accent-500 font-semibold text-2xl mb-2">
-                    Cabin {cabin.name}
-                  </h3>
-
-                  <div className="flex gap-3 items-center mb-4">
-                    <span className="text-primary-300 text-lg">
-                      For up to {cabin.max_capacity} guests
-                    </span>
-                  </div>
-
-                  <div className="flex gap-3 items-baseline mb-6">
-                    {cabin.discount > 0 ? (
-                      <>
-                        <span className="text-3xl font-[400] text-primary-50">
-                          ${cabin.regular_price - cabin.discount}
-                        </span>
-                        <span className="line-through font-semibold text-primary-600">
-                          ${cabin.regular_price}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-3xl font-[400] text-primary-50">
-                        ${cabin.regular_price}
-                      </span>
-                    )}
-                    <span className="text-primary-400">/ night</span>
-                  </div>
-                </div>
-
-                <div className="border-t border-t-primary-900 pt-5 text-right">
-                  <a
-                    href={`/cabins/${cabin.id}`}
-                    className="inline-block border border-accent-800 py-3 px-8 text-accent-400 hover:bg-accent-600 transition-all hover:text-primary-900 font-medium"
-                  >
-                    Details & reservation &rarr;
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <Suspense fallback={<Spinner />}>
+        <CabinList />
+      </Suspense>
     </div>
   );
 }

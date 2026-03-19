@@ -1,10 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { auth } from "../_lib/auth";
 
-export default function Navigation() {
-  const pathname = usePathname();
+export const dynamic = "force-dynamic";
+
+export default async function Navigation() {
+  const session = await auth();
 
   return (
     <nav className="z-10 text-xl">
@@ -12,9 +13,7 @@ export default function Navigation() {
         <li>
           <Link
             href="/cabins"
-            className={`hover:text-accent-400 transition-colors ${
-              pathname === "/cabins" ? "text-accent-400" : ""
-            }`}
+            className="hover:text-accent-400 transition-colors"
           >
             Cabins
           </Link>
@@ -22,22 +21,36 @@ export default function Navigation() {
         <li>
           <Link
             href="/about"
-            className={`hover:text-accent-400 transition-colors ${
-              pathname === "/about" ? "text-accent-400" : ""
-            }`}
+            className="hover:text-accent-400 transition-colors"
           >
             About
           </Link>
         </li>
         <li>
-          <Link
-            href="/account"
-            className={`hover:text-accent-400 transition-colors ${
-              pathname === "/account" ? "text-accent-400" : ""
-            }`}
-          >
-            Guest area
-          </Link>
+          {session?.user?.image ? (
+            <Link
+              href="/account"
+              className="hover:text-accent-400 transition-colors flex items-center gap-4"
+            >
+              <div className="relative h-8 w-8">
+                <Image
+                  fill
+                  className="rounded-full object-cover"
+                  src={session.user.image}
+                  alt={session.user.name || "User avatar"}
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <span>Guest area</span>
+            </Link>
+          ) : (
+            <Link
+              href="/account"
+              className="hover:text-accent-400 transition-colors"
+            >
+              Guest area
+            </Link>
+          )}
         </li>
       </ul>
     </nav>

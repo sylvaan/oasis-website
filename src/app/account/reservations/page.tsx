@@ -1,12 +1,17 @@
+import ReservationList from "@/app/_components/ReservationList";
+import { auth } from "@/app/_lib/auth";
+import { getBookings } from "@/app/_lib/data-service";
 import Link from "next/link";
 
 export const metadata = {
   title: "Reservations | The Wild Oasis",
 };
 
-export default function Page() {
-  // Temporary empty state
-  const bookings = [];
+export default async function Page() {
+  const session = await auth();
+  if (!session || !session.user) return null;
+
+  const bookings = await getBookings(session.user.guestId as number);
 
   return (
     <div>
@@ -22,10 +27,7 @@ export default function Page() {
           </Link>
         </p>
       ) : (
-        <ul className="flex flex-col gap-6">
-          {/* Reservation cards will be added later */}
-          <li>Reservation cards placeholder</li>
-        </ul>
+        <ReservationList bookings={bookings} />
       )}
     </div>
   );

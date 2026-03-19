@@ -7,6 +7,7 @@ import {
   HomeIcon,
   UserIcon,
 } from "@heroicons/react/24/outline";
+import SignOutButton from "./SignOutButton";
 
 const navLinks = [
   {
@@ -47,11 +48,7 @@ function SideNavigation() {
         ))}
 
         <li className="mt-auto">
-          {/* SignOutButton will be added later in auth phase */}
-          <button className="py-3 px-5 hover:bg-primary-900 hover:text-primary-100 transition-colors flex items-center gap-4 font-semibold text-primary-400 w-full">
-            {/* ArrowRightOnRectangleIcon can be used later */}
-            <span>Sign out</span>
-          </button>
+          <SignOutButton />
         </li>
       </ul>
     </nav>
