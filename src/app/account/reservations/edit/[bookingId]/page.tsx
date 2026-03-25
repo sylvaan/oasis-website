@@ -1,9 +1,10 @@
 import EditReservationForm from "@/app/_components/EditReservationForm";
 import { getBooking, getCabin } from "@/app/_lib/data-service";
 
-export async function generateMetadata({ params }: { params: { bookingId: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ bookingId: string }> }) {
+  const { bookingId } = await params;
   return {
-    title: `Edit Reservation #${params.bookingId} | The Wild Oasis`,
+    title: `Edit Reservation #${bookingId} | The Wild Oasis`,
   };
 }
 

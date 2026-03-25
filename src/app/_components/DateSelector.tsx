@@ -40,10 +40,10 @@ function DateSelector({
 }) {
   const { range, setRange, resetRange } = useReservation();
 
-  const displayRange = isAlreadyBooked(range, bookedDates) ? {} : range;
+  const displayRange = isAlreadyBooked(range, bookedDates) ? { from: undefined, to: undefined } : range;
 
   const { regular_price, discount } = cabin;
-  const numNights = differenceInDays(displayRange.to, displayRange.from);
+  const numNights = displayRange.from && displayRange.to ? differenceInDays(displayRange.to, displayRange.from) : 0;
   const cabinPrice = numNights * (regular_price - discount);
 
   // SETTINGS
@@ -54,7 +54,7 @@ function DateSelector({
       <DayPicker
         className="pt-12 place-self-center"
         mode="range"
-        onSelect={setRange}
+        onSelect={(range) => setRange({ from: range?.from, to: range?.to })}
         selected={displayRange}
         min={min_booking_length + 1}
         max={max_booking_length}

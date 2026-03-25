@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession, type Session, type User } from "next-auth";
 import Google from "next-auth/providers/google";
 import { createGuest, getGuest } from "./data-service";
 
@@ -23,15 +23,15 @@ const authConfig = {
     }),
   ],
   callbacks: {
-    authorized({ auth }: { auth: any }) {
+    authorized({ auth }: { auth: Session | null }) {
       return !!auth?.user;
     },
-    async signIn({ user }: { user: any }) {
+    async signIn({ user }: { user: User }) {
       try {
-        const existingGuest = await getGuest(user.email);
+        const existingGuest = await getGuest(user.email as string);
 
         if (!existingGuest) {
-          await createGuest({ email: user.email, fullName: user.name });
+          await createGuest({ email: user.email as string, fullName: user.name as string });
         }
 
         return true;
@@ -40,7 +40,7 @@ const authConfig = {
         return false;
       }
     },
-    async session({ session }: { session: any }) {
+    async session({ session }: { session: Session }) {
       try {
         if (!session?.user?.email) return session;
 

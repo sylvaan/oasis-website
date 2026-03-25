@@ -2,6 +2,7 @@ import ReservationList from "@/app/_components/ReservationList";
 import { auth } from "@/app/_lib/auth";
 import { getBookings } from "@/app/_lib/data-service";
 import Link from "next/link";
+import { type Booking } from "@/app/_components/ReservationList";
 
 export const metadata = {
   title: "Reservations | The Wild Oasis",
@@ -11,7 +12,9 @@ export default async function Page() {
   const session = await auth();
   if (!session || !session.user) return null;
 
-  const bookings = await getBookings(session.user.guestId as number);
+  const bookings = (await getBookings(
+    session.user.guestId as number
+  )) as unknown as Booking[];
 
   return (
     <div>

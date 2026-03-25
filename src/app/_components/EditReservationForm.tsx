@@ -1,7 +1,7 @@
 import { updateBookingAction } from "@/app/_lib/actions";
 import SubmitButton from "@/app/_components/SubmitButton";
 
-function EditReservationForm({ booking, maxCapacity }: { booking: any, maxCapacity: number }) {
+function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; numGuests: number; observations: string }, maxCapacity: number }) {
   const { id, numGuests, observations } = booking;
 
   return (

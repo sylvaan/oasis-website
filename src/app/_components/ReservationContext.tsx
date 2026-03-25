@@ -30,7 +30,7 @@ function ReservationProvider({ children }: { children: React.ReactNode }) {
 
 function useReservation() {
   const context = useContext(ReservationContext);
-  if (context === undefined)
+  if (context === undefined || context === null)
     throw new Error("Context was used outside provider");
   return context;
 }

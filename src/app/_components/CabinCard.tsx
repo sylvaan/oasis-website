@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-function CabinCard({ cabin }) {
+function CabinCard({ cabin }: { cabin: { id: number; name: string; max_capacity: number; regular_price: number; discount: number; image: string; } }) {
   const { id, name, max_capacity, regular_price, discount, image } = cabin;
 
   return (

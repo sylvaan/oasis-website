@@ -20,20 +20,20 @@ export async function generateStaticParams() {
   return ids;
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params }: { params: Promise<{ cabinId: string }> }) {
   const { cabinId } = await params;
   const cabin = await getCabin(cabinId);
   if (!cabin) return { title: "Cabin Not Found" };
   return { title: `Cabin ${cabin.name}` };
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params }: { params: Promise<{ cabinId: string }> }) {
   const { cabinId } = await params;
   const cabin = await getCabin(cabinId);
 
   if (!cabin) notFound();
 
-  const { id, name, max_capacity, regular_price, discount, image, description } =
+  const { name, max_capacity, regular_price, discount, image, description } =
     cabin;
 
   return (

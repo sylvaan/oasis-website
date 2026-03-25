@@ -116,9 +116,9 @@ export async function getBookings(guestId: number) {
   const { data, error } = await supabase
     .from("bookings")
     // Use select with join to get cabin data
-    .select("id, created_at, start_date, end_date, num_nights, num_guests, total_price, guest_id, cabin_id, cabins(name, image)")
-    .eq("guest_id", guestId)
-    .order("start_date");
+    .select("id, created_at, startDate, endDate, numNights, numGuests, totalPrice, guestId, cabinId, cabins(name, image)")
+    .eq("guestId", guestId)
+    .order("startDate");
 
   if (error) {
     console.error(error);
@@ -152,8 +152,8 @@ export async function getBookedDatesByCabinId(cabinId: number) {
   const { data, error } = await supabase
     .from("bookings")
     .select("*")
-    .eq("cabin_id", cabinId)
-    .or(`start_date.gte.${todayISO},status.eq.checked-in`);
+    .eq("cabinId", cabinId)
+    .or(`startDate.gte.${todayISO},status.eq.checked-in`);
 
   if (error) {
     console.error(error);
@@ -164,8 +164,8 @@ export async function getBookedDatesByCabinId(cabinId: number) {
   const bookedDates = data
     .map((booking) => {
       return eachDayOfInterval({
-        start: new Date(booking.start_date),
-        end: new Date(booking.end_date),
+        start: new Date(booking.startDate),
+        end: new Date(booking.endDate),
       });
     })
     .flat();

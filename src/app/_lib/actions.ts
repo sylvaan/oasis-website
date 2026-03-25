@@ -36,7 +36,7 @@ export async function updateGuestProfile(formData: FormData) {
 
   const updateData = { nationality, countryFlag, nationalID };
 
-  const guestId = (session.user as any).guestId as number;
+  const guestId = (session.user as { guestId?: number }).guestId as number;
   if (!guestId) throw new Error("Guest ID not found");
 
   await updateGuest(guestId, updateData);
@@ -48,7 +48,7 @@ export async function deleteBookingAction(bookingId: number) {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
-  const guestId = (session.user as any).guestId as number;
+  const guestId = (session.user as { guestId?: number }).guestId as number;
   const guestBookings = await getBookings(guestId);
   const guestBookingIds = guestBookings.map((booking) => booking.id);
 
