@@ -101,7 +101,8 @@ export async function createGuest(newGuest: {
 /////////////
 // CREATE / UPDATE / DELETE
 
-export async function updateGuest(id: number, updatedFields: any) {
+export async function updateGuest(id: number, updatedFields: Record<string, unknown>) {
+
   const { data, error } = await supabaseAdmin
     .from("guests")
     .update(updatedFields)
@@ -132,14 +133,22 @@ export async function getBookings(guestId: number): Promise<Booking[]> {
     throw new Error("Bookings could not get loaded");
   }
 
-  const bookings = data?.map((booking: any) => ({
-    ...booking,
-    cabins: Array.isArray(booking.cabins)
-      ? booking.cabins[0]
-      : (booking.cabins as { name: string; image: string }),
-  }));
+  const bookings = (data as unknown as Record<string, unknown>[])?.map((booking) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const b = booking as any;
+    return {
+      ...b,
+      cabins: Array.isArray(b.cabins)
+        ? b.cabins[0]
+        : (b.cabins as { name: string; image: string }),
+    };
+  }) as unknown as Booking[];
 
   return bookings;
+
+
+
+
 }
 
 export async function getBooking(id: number) {
@@ -186,7 +195,8 @@ export async function getBookedDatesByCabinId(cabinId: number) {
 /////////////
 // CREATE / UPDATE / DELETE
 
-export async function createBooking(newBooking: any) {
+export async function createBooking(newBooking: Record<string, unknown>) {
+
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .insert([newBooking])
@@ -200,7 +210,8 @@ export async function createBooking(newBooking: any) {
   return data;
 }
 
-export async function updateBooking(id: number, updatedFields: any) {
+export async function updateBooking(id: number, updatedFields: Record<string, unknown>) {
+
   const { data, error } = await supabaseAdmin
     .from("bookings")
     .update(updatedFields)

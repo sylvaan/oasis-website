@@ -38,7 +38,7 @@ const authConfig = {
         }
 
         return true;
-      } catch (error) {
+      } catch {
         return false;
       }
     },
@@ -51,11 +51,12 @@ const authConfig = {
         if (guest) {
           session.user.guestId = guest.id;
         }
-      } catch (error) {
+      } catch {
         // Silent error
       }
       return session;
     },
+
   },
   pages: {
     signIn: "/login",
