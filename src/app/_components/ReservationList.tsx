@@ -14,8 +14,10 @@ export type Booking = {
   totalPrice: number;
   guestId: number;
   cabinId: number;
+  isEarlyCheckin: boolean;
   cabins: { name: string; image: string };
 };
+
 
 function ReservationList({ bookings }: { bookings: Booking[] }) {
   const [optimisticBookings, optimisticDelete] = useOptimistic(

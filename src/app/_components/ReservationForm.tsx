@@ -37,7 +37,9 @@ function ReservationForm({
   settings: Settings;
 }) {
   const [hasBreakfast, setHasBreakfast] = useState(false);
+  const [isEarlyCheckin, setIsEarlyCheckin] = useState(false);
   const { range, resetRange } = useReservation();
+
   const { max_capacity, regular_price, discount, id } = cabin;
 
   const startDate = range.from;
@@ -54,7 +56,9 @@ function ReservationForm({
     cabinPrice,
     cabinId: id,
     hasBreakfast,
+    isEarlyCheckin,
   };
+
 
   const createBookingWithData = createBookingAction.bind(null, bookingData);
 
@@ -127,6 +131,19 @@ function ReservationForm({
           />
           <label htmlFor="hasBreakfast">
             Want to add breakfast for ${settings.breakfast_price}?
+          </label>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="isEarlyCheckin"
+            id="isEarlyCheckin"
+            className="h-5 w-5 accent-accent-500"
+            checked={isEarlyCheckin}
+            onChange={() => setIsEarlyCheckin((s) => !s)}
+          />
+          <label htmlFor="isEarlyCheckin">
+            Request early check-in (8 AM)?
           </label>
         </div>
 

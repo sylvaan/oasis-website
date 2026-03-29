@@ -1,8 +1,8 @@
 import { updateBookingAction } from "@/app/_lib/actions";
 import SubmitButton from "@/app/_components/SubmitButton";
 
-function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; numGuests: number; observations: string }, maxCapacity: number }) {
-  const { id, numGuests, observations } = booking;
+function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; numGuests: number; observations: string, isEarlyCheckin: boolean }, maxCapacity: number }) {
+  const { id, numGuests, observations, isEarlyCheckin } = booking;
 
   return (
     <form
@@ -41,6 +41,20 @@ function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; 
           className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm"
         />
       </div>
+
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          name="isEarlyCheckin"
+          id="isEarlyCheckin"
+          defaultChecked={isEarlyCheckin}
+          className="h-5 w-5 accent-accent-500"
+        />
+        <label htmlFor="isEarlyCheckin">
+          Request early check-in (8 AM)?
+        </label>
+      </div>
+
 
       <div className="flex justify-end items-center gap-6">
         <SubmitButton pendingLabel="Updating...">Update reservation</SubmitButton>

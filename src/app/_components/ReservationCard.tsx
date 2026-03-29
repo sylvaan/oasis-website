@@ -1,5 +1,8 @@
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { format, formatDistance, isPast, isToday, parseISO } from "date-fns";
+import { ClockIcon } from "@heroicons/react/24/outline";
+
+
 import DeleteReservation from "./DeleteReservation";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,9 +21,11 @@ function ReservationCard({ booking, onDelete }: { booking: Booking, onDelete: (b
     numNights,
     totalPrice,
     numGuests,
+    isEarlyCheckin,
     created_at,
     cabins: { name, image },
   } = booking;
+
 
   return (
     <div className="flex border border-primary-800">
@@ -49,13 +54,22 @@ function ReservationCard({ booking, onDelete }: { booking: Booking, onDelete: (b
           )}
         </div>
 
-        <p className="text-lg text-primary-300">
-          {format(new Date(startDate), "EEE, MMM dd yyyy")} (
-          {isToday(new Date(startDate))
-            ? "Today"
-            : formatDistanceFromNow(startDate)}
-          ) &mdash; {format(new Date(endDate), "EEE, MMM dd yyyy")}
-        </p>
+        <div className="flex gap-4 items-center mb-2">
+          <p className="text-lg text-primary-300">
+            {format(new Date(startDate), "EEE, MMM dd yyyy")} (
+            {isToday(new Date(startDate))
+              ? "Today"
+              : formatDistanceFromNow(startDate)}
+            ) &mdash; {format(new Date(endDate), "EEE, MMM dd yyyy")}
+          </p>
+          {isEarlyCheckin && (
+            <span className="flex items-center gap-1 bg-accent-600 text-primary-900 h-6 px-2 lowercase text-xs font-bold rounded-sm">
+              <ClockIcon className="h-4 w-4" />
+              <span>early check-in (8 am)</span>
+            </span>
+          )}
+        </div>
+
 
         <div className="flex gap-5 mt-auto items-baseline">
           <p className="text-xl font-semibold text-accent-500">${totalPrice}</p>

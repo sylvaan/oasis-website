@@ -70,7 +70,9 @@ interface BookingData {
   cabinPrice: number;
   cabinId: number;
   hasBreakfast: boolean;
+  isEarlyCheckin: boolean;
 }
+
 
 export async function updateBookingAction(formData: FormData) {
   const session = await auth();
@@ -78,7 +80,7 @@ export async function updateBookingAction(formData: FormData) {
 
   const bookingId = Number(formData.get("bookingId"));
 
-  const guestId = session.user.guestId;
+  const guestId = (session.user as { guestId?: number }).guestId;
   const guestBookings = await getBookings(guestId!);
   const guestBookingIds = guestBookings.map((booking) => booking.id);
 
@@ -88,7 +90,9 @@ export async function updateBookingAction(formData: FormData) {
   const updateData = {
     numGuests: Number(formData.get("numGuests")),
     observations: (formData.get("observations") as string).slice(0, 1000),
+    isEarlyCheckin: formData.get("isEarlyCheckin") === "on",
   };
+
 
   await updateBooking(bookingId, updateData);
 
@@ -105,7 +109,7 @@ export async function createBookingAction(
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
-  let guestId = session.user.guestId;
+  let guestId = (session.user as { guestId?: number }).guestId;
 
   // Fallback: If guestId is missing from session, fetch it manually
   if (!guestId && session.user.email) {
@@ -134,8 +138,10 @@ export async function createBookingAction(
     totalPrice: bookingData.cabinPrice + extrasPrice,
     isPaid: false,
     hasBreakfast: bookingData.hasBreakfast,
+    isEarlyCheckin: bookingData.isEarlyCheckin,
     status: "unconfirmed",
   };
+
 
   await createBooking(newBooking);
 
