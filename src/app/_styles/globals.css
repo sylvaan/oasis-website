@@ -21,3 +21,91 @@
 .object-top {
   object-position: top;
 }
+
+/* Center the Month & Year area perfectly */
+.rdp-caption {
+  display: flex !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.rdp-caption_dropdowns {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Ensure boxes are uniform and clean */
+.rdp-dropdown_container {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background-color: #1a2c38 !important;
+  border: 1px solid #4b5563 !important;
+  border-radius: 6px !important;
+  padding: 6px 32px 6px 12px !important; /* Extra padding right for the arrow */
+  min-width: 90px !important;
+}
+
+/* The native SELECT (invisible) but handles interaction */
+.rdp-dropdown {
+  position: absolute !important;
+  inset: 0 !important;
+  opacity: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: pointer !important;
+  z-index: 20 !important;
+}
+
+/* The label that displays the text (centered) */
+.rdp-caption_label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  position: relative !important;
+  z-index: 10 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Single clean chevron arrow */
+.rdp-dropdown_container::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 10px !important;
+  width: 12px !important;
+  height: 12px !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  pointer-events: none !important; /* Don't block clicks to the select */
+}
+
+/* Hover/Focus states for the container */
+.rdp-dropdown_container:hover,
+.rdp-dropdown_container:focus-within {
+  background-color: #2e4456 !important;
+  border-color: #718096 !important;
+}
+
+.rdp {
+  --rdp-background-color: #1a2c38 !important;
+  --rdp-accent-color: #c026d3 !important;
+  --rdp-outline: 1px solid #78716c !important;
+}
+
+.rdp-dropdown option {
+  background-color: #1a2c38 !important;
+  color: white !important;
+  padding: 8px !important;
+}
+
+
+

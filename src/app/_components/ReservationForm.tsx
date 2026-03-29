@@ -5,6 +5,7 @@ import { differenceInDays } from "date-fns";
 import SubmitButton from "./SubmitButton";
 import { createBookingAction } from "@/app/_lib/actions";
 import Image from "next/image";
+import { useState } from "react";
 
 interface Cabin {
   id: number;
@@ -19,14 +20,31 @@ interface User {
   guestId?: number;
 }
 
-function ReservationForm({ cabin, user }: { cabin: Cabin; user: User }) {
+interface Settings {
+  min_booking_length: number;
+  max_booking_length: number;
+  max_guests_per_booking: number;
+  breakfast_price: number;
+}
+
+function ReservationForm({
+  cabin,
+  user,
+  settings,
+}: {
+  cabin: Cabin;
+  user: User;
+  settings: Settings;
+}) {
+  const [hasBreakfast, setHasBreakfast] = useState(false);
   const { range, resetRange } = useReservation();
   const { max_capacity, regular_price, discount, id } = cabin;
 
   const startDate = range.from;
   const endDate = range.to;
 
-  const numNights = startDate && endDate ? differenceInDays(endDate, startDate) : 0;
+  const numNights =
+    startDate && endDate ? differenceInDays(endDate, startDate) : 0;
   const cabinPrice = numNights * (regular_price - discount);
 
   const bookingData = {
@@ -35,6 +53,7 @@ function ReservationForm({ cabin, user }: { cabin: Cabin; user: User }) {
     numNights,
     cabinPrice,
     cabinId: id,
+    hasBreakfast,
   };
 
   const createBookingWithData = createBookingAction.bind(null, bookingData);
@@ -60,12 +79,11 @@ function ReservationForm({ cabin, user }: { cabin: Cabin; user: User }) {
       </div>
 
       <form
-        // action={createBookingWithData}
         action={async (formData) => {
           await createBookingWithData(formData);
           resetRange();
         }}
-        className="bg-primary-900 py-10 px-16 text-lg flex gap-5 flex-col"
+        className="bg-primary-900 py-10 px-8 lg:px-16 text-lg flex gap-5 flex-col"
       >
         <div className="space-y-2">
           <label htmlFor="numGuests">How many guests?</label>
@@ -98,7 +116,21 @@ function ReservationForm({ cabin, user }: { cabin: Cabin; user: User }) {
           />
         </div>
 
-        <div className="flex justify-end items-center gap-6">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="hasBreakfast"
+            id="hasBreakfast"
+            className="h-5 w-5 accent-accent-500"
+            checked={hasBreakfast}
+            onChange={() => setHasBreakfast((s) => !s)}
+          />
+          <label htmlFor="hasBreakfast">
+            Want to add breakfast for ${settings.breakfast_price}?
+          </label>
+        </div>
+
+        <div className="flex justify-end items-center gap-6 pt-2">
           {!(startDate && endDate) ? (
             <p className="text-primary-300 text-base">
               Start by selecting dates

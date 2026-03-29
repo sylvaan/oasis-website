@@ -12,7 +12,8 @@ export default async function Page({ params }: { params: Promise<{ bookingId: st
   const { bookingId } = await params;
   
   const booking = await getBooking(Number(bookingId));
-  const { max_capacity } = await getCabin(booking.cabin_id);
+  const cabin = await getCabin(booking.cabinId);
+  const max_capacity = cabin?.max_capacity ?? 0;
 
   return (
     <div>

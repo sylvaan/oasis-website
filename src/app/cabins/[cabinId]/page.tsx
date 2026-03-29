@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 // This helps Next.js generate all cabin pages at build time (optional but good for perf)
 export async function generateStaticParams() {
@@ -45,8 +45,8 @@ export default async function Page({ params }: { params: Promise<{ cabinId: stri
         &larr; Back to all cabins
       </Link>
 
-      <div className="grid grid-cols-[3fr_4fr] gap-20 border border-primary-800 py-3 px-10 mb-24">
-        <div className="relative scale-[1.15] -translate-x-3">
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_4fr] gap-10 md:gap-20 border border-primary-800 py-3 px-5 md:px-10 mb-24">
+        <div className="relative md:scale-[1.15] md:-translate-x-3 mb-8 md:mb-0 h-64 md:h-auto">
           <Image
             src={image}
             fill
@@ -56,7 +56,7 @@ export default async function Page({ params }: { params: Promise<{ cabinId: stri
         </div>
 
         <div>
-          <h3 className="text-accent-100 font-black text-7xl mb-5 translate-x-[-254px] bg-primary-950 p-6 pb-1 w-[150%]">
+          <h3 className="text-accent-100 font-black text-4xl mb-5 md:text-7xl md:translate-x-[-254px] bg-primary-950 p-6 pb-1 md:w-[150%]">
             Cabin {name}
           </h3>
 

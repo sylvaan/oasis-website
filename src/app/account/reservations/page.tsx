@@ -1,8 +1,9 @@
 import ReservationList from "@/app/_components/ReservationList";
 import { auth } from "@/app/_lib/auth";
-import { getBookings } from "@/app/_lib/data-service";
+import { getBookings, getGuest } from "@/app/_lib/data-service";
 import Link from "next/link";
-import { type Booking } from "@/app/_components/ReservationList";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Reservations | The Wild Oasis",
@@ -12,9 +13,15 @@ export default async function Page() {
   const session = await auth();
   if (!session || !session.user) return null;
 
-  const bookings = (await getBookings(
-    session.user.guestId as number
-  )) as unknown as Booking[];
+  let guestId = session.user.guestId;
+
+  // Recovery: If guestId is missing from session, fetch it manually
+  if (!guestId && session.user.email) {
+    const guest = await getGuest(session.user.email);
+    if (guest) guestId = guest.id;
+  }
+
+  const bookings = guestId ? await getBookings(guestId) : [];
 
   return (
     <div>

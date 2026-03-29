@@ -1,5 +1,6 @@
 import { eachDayOfInterval } from "date-fns";
 import { supabase } from "./supabaseClient";
+import { supabaseAdmin } from "./supabaseAdmin";
 
 /////////////
 // GET
@@ -11,7 +12,6 @@ export async function getCabins() {
     .order("name");
 
   if (error) {
-    console.error(error);
     throw new Error("Cabins could not be loaded");
   }
 
@@ -25,7 +25,6 @@ export async function getCabin(id: string) {
     .eq("id", id)
     .single();
 
-  // No need to throw here, we can handle it in the page
   return data;
 }
 
@@ -37,7 +36,7 @@ export async function getCabinPrice(id: string) {
     .single();
 
   if (error) {
-    console.error(error);
+    // Silent error for price fetching
   }
 
   return data;
@@ -47,17 +46,22 @@ export async function getSettings() {
   const { data, error } = await supabase.from("settings").select("*").single();
 
   if (error) {
-    console.error(error);
     throw new Error("Settings could not be loaded");
   }
 
-  return data;
+  // settings table uses camelCase: minBookingLength, maxBookingLength, etc.
+  return {
+    min_booking_length: data.minBookingLength,
+    max_booking_length: data.maxBookingLength,
+    max_guests_per_booking: data.maxGuestsPerBooking,
+    breakfast_price: data.breakfastPrice,
+  };
 }
 
 export async function getCountries() {
   try {
     const res = await fetch(
-      "https://restcountries.com/v2/all?fields=name,flag"
+      "https://restcountries.com/v2/all?fields=name,flag",
     );
     const countries = await res.json();
     return countries;
@@ -67,14 +71,14 @@ export async function getCountries() {
 }
 
 export async function getGuest(email: string) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("guests")
     .select("*")
     .eq("email", email)
     .single();
 
   if (error && error.code !== "PGRST116") {
-    console.error("Supabase error in getGuest:", error);
+    console.error("Supabase error in getGuest:", error.message);
   }
 
   return data;
@@ -84,10 +88,10 @@ export async function createGuest(newGuest: {
   email: string;
   fullName: string;
 }) {
-  const { data, error } = await supabase.from("guests").insert([newGuest]);
+  const { data, error } = await supabaseAdmin.from("guests").insert([newGuest]);
 
   if (error) {
-    console.error("Supabase error in createGuest:", error);
+    console.error("Supabase error in createGuest:", error.message);
     throw new Error("Guest could not be created");
   }
 
@@ -96,10 +100,9 @@ export async function createGuest(newGuest: {
 
 /////////////
 // CREATE / UPDATE / DELETE
-// (Will be implemented in the Server Actions phase)
 
-export async function updateGuest(id: number, updatedFields: object) {
-  const { data, error } = await supabase
+export async function updateGuest(id: number, updatedFields: any) {
+  const { data, error } = await supabaseAdmin
     .from("guests")
     .update(updatedFields)
     .eq("id", id)
@@ -107,36 +110,46 @@ export async function updateGuest(id: number, updatedFields: object) {
     .single();
 
   if (error) {
-    console.error(error);
     throw new Error("Guest could not be updated");
   }
   return data;
 }
-export async function getBookings(guestId: number) {
-  const { data, error } = await supabase
+
+import { type Booking } from "../_components/ReservationList";
+
+export async function getBookings(guestId: number): Promise<Booking[]> {
+  if (!guestId) return [];
+
+  const { data, error } = await supabaseAdmin
     .from("bookings")
-    // Use select with join to get cabin data
-    .select("id, created_at, startDate, endDate, numNights, numGuests, totalPrice, guestId, cabinId, cabins(name, image)")
+    .select(
+      "id, created_at, startDate, endDate, numNights, numGuests, totalPrice, guestId, cabinId, cabins(name, image)",
+    )
     .eq("guestId", guestId)
     .order("startDate");
 
   if (error) {
-    console.error(error);
     throw new Error("Bookings could not get loaded");
   }
 
-  return data;
+  const bookings = data?.map((booking: any) => ({
+    ...booking,
+    cabins: Array.isArray(booking.cabins)
+      ? booking.cabins[0]
+      : (booking.cabins as { name: string; image: string }),
+  }));
+
+  return bookings;
 }
 
 export async function getBooking(id: number) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("bookings")
     .select("*")
     .eq("id", id)
     .single();
 
   if (error) {
-    console.error(error);
     throw new Error("Booking could not get loaded");
   }
 
@@ -148,19 +161,16 @@ export async function getBookedDatesByCabinId(cabinId: number) {
   today.setUTCHours(0, 0, 0, 0);
   const todayISO = today.toISOString();
 
-  // Getting all bookings
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("bookings")
     .select("*")
     .eq("cabinId", cabinId)
     .or(`startDate.gte.${todayISO},status.eq.checked-in`);
 
   if (error) {
-    console.error(error);
     throw new Error("Bookings could not get loaded");
   }
 
-  // Converting to actual dates to be used in the date range picker
   const bookedDates = data
     .map((booking) => {
       return eachDayOfInterval({
@@ -176,24 +186,22 @@ export async function getBookedDatesByCabinId(cabinId: number) {
 /////////////
 // CREATE / UPDATE / DELETE
 
-export async function createBooking(newBooking: object) {
-  const { data, error } = await supabase
+export async function createBooking(newBooking: any) {
+  const { data, error } = await supabaseAdmin
     .from("bookings")
     .insert([newBooking])
-    // So that the newly created object is returned!
     .select()
     .single();
 
   if (error) {
-    console.error(error);
     throw new Error("Booking could not be created");
   }
 
   return data;
 }
 
-export async function updateBooking(id: number, updatedFields: object) {
-  const { data, error } = await supabase
+export async function updateBooking(id: number, updatedFields: any) {
+  const { data, error } = await supabaseAdmin
     .from("bookings")
     .update(updatedFields)
     .eq("id", id)
@@ -201,17 +209,15 @@ export async function updateBooking(id: number, updatedFields: object) {
     .single();
 
   if (error) {
-    console.error(error);
     throw new Error("Booking could not be updated");
   }
   return data;
 }
 
 export async function deleteBooking(id: number) {
-  const { data, error } = await supabase.from("bookings").delete().eq("id", id);
+  const { data, error } = await supabaseAdmin.from("bookings").delete().eq("id", id);
 
   if (error) {
-    console.error(error);
     throw new Error("Booking could not be deleted");
   }
   return data;

@@ -28,28 +28,31 @@ const authConfig = {
     },
     async signIn({ user }: { user: User }) {
       try {
-        const existingGuest = await getGuest(user.email as string);
+        const email = user.email?.toLowerCase();
+        if (!email) return false;
+
+        const existingGuest = await getGuest(email);
 
         if (!existingGuest) {
-          await createGuest({ email: user.email as string, fullName: user.name as string });
+          await createGuest({ email, fullName: user.name as string });
         }
 
         return true;
       } catch (error) {
-        console.error("Sign-in error in callback:", error);
         return false;
       }
     },
     async session({ session }: { session: Session }) {
       try {
-        if (!session?.user?.email) return session;
+        const email = session?.user?.email?.toLowerCase();
+        if (!email) return session;
 
-        const guest = await getGuest(session.user.email);
+        const guest = await getGuest(email);
         if (guest) {
           session.user.guestId = guest.id;
         }
       } catch (error) {
-        console.error("Session callback error:", error);
+        // Silent error
       }
       return session;
     },

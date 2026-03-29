@@ -29,10 +29,9 @@ export default function UpdateProfileForm({
       <div className="flex flex-col gap-2">
         <label>Full name</label>
         <input
-          disabled
           defaultValue={fullName}
           name="fullName"
-          className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400"
+          className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm"
         />
       </div>
 
@@ -50,12 +49,14 @@ export default function UpdateProfileForm({
         <div className="flex items-center justify-between">
           <label htmlFor="nationality">Where are you from?</label>
           <div className="relative h-5 w-8">
-            <Image
-              src={countryFlag}
-              alt="Country flag"
-              fill
-              className="rounded-sm object-cover"
-            />
+            {countryFlag && (
+              <Image
+                src={countryFlag}
+                alt="Country flag"
+                fill
+                className="rounded-sm object-cover"
+              />
+            )}
           </div>
         </div>
 
@@ -63,10 +64,16 @@ export default function UpdateProfileForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="nationalID">National ID number</label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="nationalID">National ID number</label>
+          <p className="text-sm text-primary-400">6-16 characters, alphanumeric only</p>
+        </div>
         <input
           name="nationalID"
           defaultValue={nationalID}
+          minLength={6}
+          maxLength={16}
+          required
           className="px-5 py-3 bg-primary-200 text-primary-800 w-full shadow-sm rounded-sm"
         />
       </div>
