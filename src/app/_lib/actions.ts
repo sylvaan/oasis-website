@@ -22,7 +22,7 @@ export async function signOutAction() {
   await signOut({ redirectTo: "/" });
 }
 
-export async function updateGuestProfile(formData: FormData) {
+export async function updateGuestProfile(prevState: any, formData: FormData) {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
@@ -87,7 +87,7 @@ interface BookingData {
 }
 
 
-export async function updateBookingAction(formData: FormData) {
+export async function updateBookingAction(prevState: any, formData: FormData) {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
