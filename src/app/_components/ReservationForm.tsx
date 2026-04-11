@@ -60,7 +60,7 @@ function ReservationForm({
   };
 
 
-  const [state, formAction] = useActionState(async (prevState: any, formData: FormData) => {
+  const [state, formAction] = useActionState(async (prevState: ActionState, formData: FormData) => {
     const res = await createBookingAction(bookingData, formData);
     if (res.success) {
       resetRange();

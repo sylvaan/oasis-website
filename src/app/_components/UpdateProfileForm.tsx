@@ -22,7 +22,11 @@ export default function UpdateProfileForm({
 }) {
   const { fullName, email, countryFlag, nationalID } = guest;
 
-  const [state, formAction] = useActionState(updateGuestProfile, null);
+  const [state, formAction] = useActionState(
+    (prevState: ActionState, formData: FormData) =>
+      updateGuestProfile(prevState, formData),
+    null
+  );
 
   return (
     <form

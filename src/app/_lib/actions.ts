@@ -14,6 +14,8 @@ import {
   updateGuest,
 } from "./data-service";
 
+export type ActionState = { success: boolean; message: string } | null;
+
 export async function signInAction() {
   await signIn("google", { redirectTo: "/account" });
 }
@@ -22,7 +24,10 @@ export async function signOutAction() {
   await signOut({ redirectTo: "/" });
 }
 
-export async function updateGuestProfile(prevState: any, formData: FormData) {
+export async function updateGuestProfile(
+  prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
@@ -87,7 +92,10 @@ interface BookingData {
 }
 
 
-export async function updateBookingAction(prevState: any, formData: FormData) {
+export async function updateBookingAction(
+  prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 

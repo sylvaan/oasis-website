@@ -1,13 +1,17 @@
 "use client";
 
 import { useActionState } from "react";
-import { updateBookingAction } from "@/app/_lib/actions";
+import { updateBookingAction, type ActionState } from "@/app/_lib/actions";
 import SubmitButton from "@/app/_components/SubmitButton";
 
 function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; numGuests: number; observations: string, isEarlyCheckin: boolean }, maxCapacity: number }) {
   const { id, numGuests, observations, isEarlyCheckin } = booking;
 
-  const [state, formAction] = useActionState(updateBookingAction, null);
+  const [state, formAction] = useActionState(
+    (prevState: ActionState, formData: FormData) =>
+      updateBookingAction(prevState, formData),
+    null
+  );
 
   return (
     <form
