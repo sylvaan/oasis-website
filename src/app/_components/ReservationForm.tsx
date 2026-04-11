@@ -5,7 +5,7 @@ import { differenceInDays } from "date-fns";
 import SubmitButton from "./SubmitButton";
 import { createBookingAction } from "@/app/_lib/actions";
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 
 interface Cabin {
   id: number;
@@ -60,7 +60,13 @@ function ReservationForm({
   };
 
 
-  const createBookingWithData = createBookingAction.bind(null, bookingData);
+  const [state, formAction] = useActionState(async (prevState: any, formData: FormData) => {
+    const res = await createBookingAction(bookingData, formData);
+    if (res.success) {
+      resetRange();
+    }
+    return res;
+  }, null);
 
   return (
     <div className="scale-[1.01]">
@@ -83,12 +89,19 @@ function ReservationForm({
       </div>
 
       <form
-        action={async (formData) => {
-          await createBookingWithData(formData);
-          resetRange();
-        }}
+        action={formAction}
         className="bg-primary-900 py-10 px-8 lg:px-16 text-lg flex gap-5 flex-col"
       >
+        {state?.message && (
+          <p
+            className={`px-4 py-2 rounded-sm ${
+              state.success ? "bg-green-600 text-green-50" : "bg-red-600 text-red-50"
+            }`}
+          >
+            {state.message}
+          </p>
+        )}
+
         <div className="space-y-2">
           <label htmlFor="numGuests">How many guests?</label>
           <select

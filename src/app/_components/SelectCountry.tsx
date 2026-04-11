@@ -11,12 +11,12 @@ async function SelectCountry({ defaultCountry, name, id, className }: { defaultC
       name={name}
       id={id}
       // Here we use a trick to encode BOTH the nationality name and the flag
-      defaultValue={`${defaultCountry}%${flag}`}
+      defaultValue={defaultCountry}
       className={className}
     >
       <option value="">Select country...</option>
       {countries.map((c: { name: string; flag: string }) => (
-        <option key={c.name} value={`${c.name}%${c.flag}`}>
+        <option key={c.name} value={c.name}>
           {c.name}
         </option>
       ))}

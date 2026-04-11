@@ -11,6 +11,8 @@ function CabinCard({ cabin }: { cabin: { id: number; name: string; max_capacity:
           fill
           alt={`Cabin ${name}`}
           className="object-cover"
+          placeholder="blur"
+          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8AOf9nB9+AAAAABJRU5ErkJggg=="
         />
       </div>
 

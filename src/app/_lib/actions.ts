@@ -7,6 +7,7 @@ import {
   createBooking,
   deleteBooking,
   getBookings,
+  getCountries,
   getGuest,
   getSettings,
   updateBooking,
@@ -25,42 +26,54 @@ export async function updateGuestProfile(formData: FormData) {
   const session = await auth();
   if (!session || !session.user) throw new Error("You must be logged in");
 
+  const guestId = (session.user as { guestId?: number }).guestId as number;
+  if (!guestId) throw new Error("Guest ID not found");
+
   const fullName = formData.get("fullName") as string;
   const nationalID = formData.get("nationalID") as string;
-  const nationalityValue = formData.get("nationality") as string;
+  const nationality = formData.get("nationality") as string;
 
-  if (!nationalityValue) throw new Error("Please provide your nationality");
-
-  const [nationality, countryFlag] = nationalityValue.split("%");
+  if (!nationality) throw new Error("Please provide your nationality");
 
   if (!/^[a-zA-Z0-9]{6,16}$/.test(nationalID)) {
     throw new Error("National ID must be between 6 and 16 characters (alphanumeric only)");
   }
 
-  const updateData = { fullName, nationality, countryFlag, nationalID };
+  try {
+    // Fetch flag from server to keep it clean
+    const countries = await getCountries();
+    const countryFlag = countries.find((c: { name: string; flag: string }) => c.name === nationality)?.flag;
 
-  const guestId = (session.user as { guestId?: number }).guestId as number;
-  if (!guestId) throw new Error("Guest ID not found");
+    const updateData = { fullName, nationality, countryFlag, nationalID };
 
-  await updateGuest(guestId, updateData);
+    await updateGuest(guestId, updateData);
 
-  revalidatePath("/account/profile");
+    revalidatePath("/account/profile");
+    return { success: true, message: "Profile updated successfully!" };
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to update profile" };
+  }
 }
 
 export async function deleteBookingAction(bookingId: number) {
-  const session = await auth();
-  if (!session || !session.user) throw new Error("You must be logged in");
+  try {
+    const session = await auth();
+    if (!session || !session.user) throw new Error("You must be logged in");
 
-  const guestId = (session.user as { guestId?: number }).guestId as number;
-  const guestBookings = await getBookings(guestId);
-  const guestBookingIds = guestBookings.map((booking) => booking.id);
+    const guestId = (session.user as { guestId?: number }).guestId as number;
+    const guestBookings = await getBookings(guestId);
+    const guestBookingIds = guestBookings.map((booking) => booking.id);
 
-  if (!guestBookingIds.includes(bookingId))
-    throw new Error("You are not allowed to delete this booking");
+    if (!guestBookingIds.includes(bookingId))
+      throw new Error("You are not allowed to delete this booking");
 
-  await deleteBooking(bookingId);
+    await deleteBooking(bookingId);
 
-  revalidatePath("/account/reservations");
+    revalidatePath("/account/reservations");
+    return { success: true, message: "Booking deleted successfully!" };
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to delete booking" };
+  }
 }
 
 interface BookingData {
@@ -79,25 +92,28 @@ export async function updateBookingAction(formData: FormData) {
   if (!session || !session.user) throw new Error("You must be logged in");
 
   const bookingId = Number(formData.get("bookingId"));
-
   const guestId = (session.user as { guestId?: number }).guestId;
-  const guestBookings = await getBookings(guestId!);
-  const guestBookingIds = guestBookings.map((booking) => booking.id);
 
-  if (!guestBookingIds.includes(bookingId))
-    throw new Error("You are not allowed to update this booking");
+  try {
+    const guestBookings = await getBookings(guestId!);
+    const guestBookingIds = guestBookings.map((booking) => booking.id);
 
-  const updateData = {
-    numGuests: Number(formData.get("numGuests")),
-    observations: (formData.get("observations") as string).slice(0, 1000),
-    isEarlyCheckin: formData.get("isEarlyCheckin") === "on",
-  };
+    if (!guestBookingIds.includes(bookingId))
+      throw new Error("You are not allowed to update this booking");
 
+    const updateData = {
+      numGuests: Number(formData.get("numGuests")),
+      observations: (formData.get("observations") as string).slice(0, 1000),
+      isEarlyCheckin: formData.get("isEarlyCheckin") === "on",
+    };
 
-  await updateBooking(bookingId, updateData);
+    await updateBooking(bookingId, updateData);
 
-  revalidatePath("/account/reservations");
-  revalidatePath(`/account/reservations/edit/${bookingId}`);
+    revalidatePath("/account/reservations");
+    revalidatePath(`/account/reservations/edit/${bookingId}`);
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to update booking" };
+  }
 
   redirect("/account/reservations");
 }
@@ -123,30 +139,33 @@ export async function createBookingAction(
     );
   }
 
-  const { breakfast_price } = await getSettings();
-  const numGuests = Number(formData.get("numGuests"));
-  const extrasPrice = bookingData.hasBreakfast
-    ? breakfast_price * bookingData.numNights * numGuests
-    : 0;
+  try {
+    const { breakfast_price } = await getSettings();
+    const numGuests = Number(formData.get("numGuests"));
+    const extrasPrice = bookingData.hasBreakfast
+      ? breakfast_price * bookingData.numNights * numGuests
+      : 0;
 
-  const newBooking = {
-    ...bookingData,
-    guestId: guestId!,
-    numGuests,
-    observations: (formData.get("observations") as string)?.slice(0, 1000),
-    extrasPrice,
-    totalPrice: bookingData.cabinPrice + extrasPrice,
-    isPaid: false,
-    hasBreakfast: bookingData.hasBreakfast,
-    isEarlyCheckin: bookingData.isEarlyCheckin,
-    status: "unconfirmed",
-  };
+    const newBooking = {
+      ...bookingData,
+      guestId: guestId!,
+      numGuests,
+      observations: (formData.get("observations") as string)?.slice(0, 1000),
+      extrasPrice,
+      totalPrice: bookingData.cabinPrice + extrasPrice,
+      isPaid: false,
+      hasBreakfast: bookingData.hasBreakfast,
+      isEarlyCheckin: bookingData.isEarlyCheckin,
+      status: "unconfirmed",
+    };
 
+    await createBooking(newBooking);
 
-  await createBooking(newBooking);
-
-  revalidatePath(`/cabins/${bookingData.cabinId}`);
-  revalidatePath("/account/reservations");
+    revalidatePath(`/cabins/${bookingData.cabinId}`);
+    revalidatePath("/account/reservations");
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to create booking" };
+  }
 
   redirect("/account/reservations");
 }

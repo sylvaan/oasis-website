@@ -1,14 +1,29 @@
+"use client";
+
+import { useActionState } from "react";
 import { updateBookingAction } from "@/app/_lib/actions";
 import SubmitButton from "@/app/_components/SubmitButton";
 
 function EditReservationForm({ booking, maxCapacity }: { booking: { id: number; numGuests: number; observations: string, isEarlyCheckin: boolean }, maxCapacity: number }) {
   const { id, numGuests, observations, isEarlyCheckin } = booking;
 
+  const [state, formAction] = useActionState(updateBookingAction, null);
+
   return (
     <form
-      action={updateBookingAction}
+      action={formAction}
       className="bg-primary-900 py-8 px-12 text-lg flex gap-6 flex-col"
     >
+      {state?.message && (
+        <p
+          className={`px-4 py-2 rounded-sm ${
+            state.success ? "bg-green-600 text-green-50" : "bg-red-600 text-red-50"
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+
       <input type="hidden" name="bookingId" value={id} />
 
       <div className="space-y-2">

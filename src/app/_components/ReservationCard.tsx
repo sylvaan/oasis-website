@@ -35,6 +35,8 @@ function ReservationCard({ booking, onDelete }: { booking: Booking, onDelete: (b
           fill
           alt={`Cabin ${name}`}
           className="object-cover border-r border-primary-800"
+          placeholder="blur"
+          blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8AOf9nB9+AAAAABJRU5ErkJggg=="
         />
       </div>
 

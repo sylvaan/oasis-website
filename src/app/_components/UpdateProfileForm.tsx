@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { updateGuestProfile } from "@/app/_lib/actions";
@@ -21,11 +22,23 @@ export default function UpdateProfileForm({
 }) {
   const { fullName, email, countryFlag, nationalID } = guest;
 
+  const [state, formAction] = useActionState(updateGuestProfile, null);
+
   return (
     <form
-      action={updateGuestProfile}
+      action={formAction}
       className="bg-primary-900 py-8 px-12 text-lg flex gap-6 flex-col"
     >
+      {state?.message && (
+        <p
+          className={`px-4 py-2 rounded-sm ${
+            state.success ? "bg-green-600 text-green-50" : "bg-red-600 text-red-50"
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+
       <div className="flex flex-col gap-2">
         <label>Full name</label>
         <input
