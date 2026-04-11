@@ -3,7 +3,7 @@
 import { useReservation } from "./ReservationContext";
 import { differenceInDays } from "date-fns";
 import SubmitButton from "./SubmitButton";
-import { createBookingAction } from "@/app/_lib/actions";
+import { createBookingAction, type ActionState } from "@/app/_lib/actions";
 import Image from "next/image";
 import { useActionState, useState } from "react";
 

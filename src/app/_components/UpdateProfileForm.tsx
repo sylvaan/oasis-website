@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
-import { updateGuestProfile } from "@/app/_lib/actions";
+import { updateGuestProfile, type ActionState } from "@/app/_lib/actions";
 
 interface Guest {
   fullName: string;
